@@ -1,0 +1,38 @@
+services:
+    backend:
+        container_name: app
+        image: app
+        env_file: .env
+        depends_on:
+            - postgres
+        volumes:
+            - .:/var/www/html
+
+    postgres:
+        container_name: postgres
+        image: postgres:17-alpine
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            PGPORT: 5432
+        volumes:
+            - db-data:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+
+    nginx:
+        image: nginx:alpine
+        container_name: nginx
+        depends_on:
+            - backend
+        env_file:
+            -   nginx/.env
+        ports:
+            - "80:80"
+        volumes:
+            - ./nginx/core-conf.d/:/etc/nginx/conf.d/
+            - .:/var/www/html
+
+volumes:
+    db-data:
